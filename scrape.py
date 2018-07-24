@@ -3,6 +3,8 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
+from urllib.parse import urlparse
+import yaml
 
 def simple_get(url):
     """
@@ -52,7 +54,13 @@ class PageInfo:
         self.words = words
         self.next = next
 
-def handle_page(url):
+class StoryInfo:
+    def __init__(self, name, startUrl):
+        self.name = name
+        self.startUrl = startUrl
+        self.pages = []
+
+def handle_page(url, nextvalidator):
     page = simple_get(url)
     html = BeautifulSoup(page, 'html.parser')
 
@@ -60,8 +68,27 @@ def handle_page(url):
     words = words_of_entries(html.select('.entry-content p')[1:-1])
     next = html.select('.entry-content p')[-1].find_all('a')[-1]['href']
 
+    if not nextvalidator(next):
+        next = None
+
     print(f'{url}, {date}: {words}, {next}')
 
     return PageInfo(date, words, next)
 
-handle_page('https://pactwebserial.wordpress.com/2013/12/17/bonds-1-1/')
+def handle_story(story):
+    domain = urlparse(story.startUrl).netloc
+
+    url = story.startUrl
+    while url != None:
+        page = handle_page(url, lambda next: domain in next)
+        story.pages += [page]
+        url = page.next
+
+def handle_stories(stories):
+    for id, story in stories.items():
+        handle_story(story)
+
+stories = {'pact': StoryInfo('Pact', 'https://pactwebserial.wordpress.com/2015/02/17/judgment-16-8/')}
+handle_stories(stories)
+
+print(yaml.dump(stories))
