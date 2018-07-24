@@ -3,7 +3,7 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 import yaml
 import strictyaml
 
@@ -56,9 +56,10 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url):
+    def __init__(self, name, url, nextlink):
         self.name = name
         self.url = url
+        self.nextlink = nextlink
         self.data = None;
 
 class StoryData:
@@ -71,10 +72,11 @@ def handle_page(url, nextvalidator):
 
     date = dateutilparse(html.select_one('.entry-date').get_text())
     words = words_of_entries(html.select('.entry-content p')[1:-1])
-    next = html.select('.entry-content p')[-1].find_all('a')[-1]['href']
 
-    if not nextvalidator(next):
-        next = None
+    next = None
+    for link in html.select('.entry-content p a'):
+        if nextvalidator(link):
+            next = urljoin(url, link['href'])
 
     print(f'{url}, {date}: {words}, {next}')
 
@@ -94,9 +96,10 @@ def handle_story(story):
         url = story.url
 
     while url != None:
-        page = handle_page(url, lambda next: domain in next)
+        page = handle_page(url, lambda next: story.nextlink == next.text and domain in next['href'])
         story.data.pages += [page]
         url = page.next
+        save_cache()
 
 def handle_stories(stories):
     for id, story in stories.items():
@@ -108,7 +111,7 @@ def load_from_yaml():
 
     stories = {}
     for key, value in raw.items():
-        stories[key.text] = StoryInfo(value['name'].text, value['url'].text)
+        stories[key.text] = StoryInfo(value['name'].text, value['url'].text, value['nextlink'].text)
 
     try:
         with open('cache.yaml', 'r') as f:
@@ -124,8 +127,12 @@ def load_from_yaml():
 
     return stories
 
+def save_cache():
+    global stories
+    with open('cache.yaml', 'w') as f:
+        yaml.dump({k: v.data for (k, v) in stories.items()}, f)
+
 stories = load_from_yaml()
 handle_stories(stories)
 
-with open('cache.yaml', 'w') as f:
-    yaml.dump({k: v.data for (k, v) in stories.items()}, f)
+save_cache()

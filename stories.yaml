@@ -1,16 +1,19 @@
 worm:
   name: Worm
   url: https://parahumans.wordpress.com/2011/06/11/1-1/
+  nextlink: Next Chapter
 
 pact:
   name: Pact
   url: https://pactwebserial.wordpress.com/2013/12/17/bonds-1-1/
+  nextlink: Next Chapter
 
 twig:
   name: Twig
   url: https://twigserial.wordpress.com/2014/12/24/taking-root-1-1/
+  nextlink: Next
 
 ward:
   name: Ward
   url: https://www.parahumans.net/2017/10/21/glow-worm-0-1/
-
+  nextlink: Next Chapter
