@@ -59,7 +59,7 @@ def handle_story(story):
         url = story.url
 
     while url != None:
-        page = handle_page(url, lambda next: story.nextlink == next.text and domain in next['href'])
+        page = handle_page(url, lambda next: story.nextlink == next.text.strip() and domain in next['href'])
         story.data.pages += [page]
         url = page.next
         save_cache()
