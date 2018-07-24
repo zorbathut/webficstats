@@ -110,8 +110,11 @@ def load_from_yaml():
     for key, value in raw.items():
         stories[key.text] = StoryInfo(value['name'].text, value['url'].text)
 
-    with open('cache.yaml', 'r') as f:
-        cache = yaml.load(f)
+    try:
+        with open('cache.yaml', 'r') as f:
+            cache = yaml.load(f)
+    except IOError:
+        cache = {}
 
     for key, value in stories.items():
         if key in cache:
