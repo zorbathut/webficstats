@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
 from urllib.parse import urlparse
 import yaml
+import strictyaml
 
 def simple_get(url):
     """
@@ -55,9 +56,13 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, startUrl):
+    def __init__(self, name, url):
         self.name = name
-        self.startUrl = startUrl
+        self.url = url
+        self.data = None;
+
+class StoryData:
+    def __init__(self):
         self.pages = []
 
 def handle_page(url, nextvalidator):
@@ -76,19 +81,48 @@ def handle_page(url, nextvalidator):
     return PageInfo(date, words, next)
 
 def handle_story(story):
-    domain = urlparse(story.startUrl).netloc
+    domain = urlparse(story.url).netloc
 
-    url = story.startUrl
+    # get rid of the last page, just in case it's changed (we expect this)
+    if len(story.data.pages) > 0:
+        story.data.pages.pop()
+
+    # either use the final next if available, or the base URL
+    if len(story.data.pages) > 0:
+        url = story.data.pages[-1].next
+    else:
+        url = story.url
+
     while url != None:
         page = handle_page(url, lambda next: domain in next)
-        story.pages += [page]
+        story.data.pages += [page]
         url = page.next
 
 def handle_stories(stories):
     for id, story in stories.items():
         handle_story(story)
 
-stories = {'pact': StoryInfo('Pact', 'https://pactwebserial.wordpress.com/2015/02/17/judgment-16-8/')}
+def load_from_yaml():
+    with open('stories.yaml', 'r') as f:
+        raw = strictyaml.load(f.read())
+
+    stories = {}
+    for key, value in raw.items():
+        stories[key.text] = StoryInfo(value['name'].text, value['url'].text)
+
+    with open('cache.yaml', 'r') as f:
+        cache = yaml.load(f)
+
+    for key, value in stories.items():
+        if key in cache:
+            value.data = cache[key]
+        else:
+            value.data = StoryData()
+
+    return stories
+
+stories = load_from_yaml()
 handle_stories(stories)
 
-print(yaml.dump(stories))
+with open('cache.yaml', 'w') as f:
+    yaml.dump({k: v.data for (k, v) in stories.items()}, f)
