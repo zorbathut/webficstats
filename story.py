@@ -5,6 +5,7 @@ from disk import *
 from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
 from urllib.parse import urlparse, urljoin
+import itertools
 
 def words_of_entries(entries):
     words = 0
@@ -24,6 +25,9 @@ class StoryInfo:
         self.url = url
         self.nextlink = nextlink
         self.data = None;
+
+    def words_total(self):
+        return sum(page.words for page in self.data.pages)
 
 class StoryData:
     def __init__(self):
