@@ -20,38 +20,54 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, nextlink):
+    def __init__(self, name, url, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength):
         self.name = name
         self.url = url
-        self.nextlink = nextlink
+        self.nextlinkclass = nextlinkclass
+        self.nextlinktext = nextlinktext
+        self.contentblockbegin = contentblockbegin
+        self.contentblockend = contentblockend
+        self.domains = domains
+        self.zerolength = zerolength
         self.data = None;
 
     def words_total(self):
         return sum(page.words for page in self.data.pages)
 
+    def contentblock_crop(self, blocks):
+        if self.contentblockend != 0:
+            return blocks[self.contentblockbegin:-self.contentblockend]
+        elif self.contentblockbegin != 0:
+            return blocks[self.contentblockbegin:]
+        else:
+            return blocks
+
 class StoryData:
     def __init__(self):
         self.pages = []
 
-def handle_page(url, nextvalidator):
+def handle_page(url, story):
     page = simple_get(url)
     html = BeautifulSoup(page, 'html.parser')
 
     date = dateutilparse(html.select_one('.entry-date').get_text())
-    words = words_of_entries(html.select('.entry-content p')[1:-1])
+    words = words_of_entries(story.contentblock_crop(html.select('.entry-content p')))
 
-    next = None
-    for link in html.select('.entry-content p a'):
-        if nextvalidator(link):
+    if words <= 0 and url not in story.zerolength:
+        raise RuntimeError(f'Zero words detected in chapter {url}; that is never right')
+
+    for link in html.select(story.nextlinkclass):
+        if re.match(story.nextlinktext, link.text.strip()) and urlparse(link['href']).netloc in story.domains:
             next = urljoin(url, link['href'])
+            break
+    else:
+        next = None
 
     print(f'{url}, {date}: {words}, {next}')
 
     return PageInfo(date, words, next)
 
 def handle_story(story):
-    domain = urlparse(story.url).netloc
-
     # get rid of the last page, just in case it's changed (we expect this)
     if len(story.data.pages) > 0:
         story.data.pages.pop()
@@ -63,11 +79,13 @@ def handle_story(story):
         url = story.url
 
     while url != None:
-        page = handle_page(url, lambda next: story.nextlink == next.text.strip() and domain in next['href'])
+        page = handle_page(url, story)
         story.data.pages += [page]
         url = page.next
-        save_cache()
+        save_cache(optional = True)
 
 def handle_stories():
     for id, story in db().items():
         handle_story(story)
+
+    save_cache()

@@ -4,7 +4,7 @@ from disk import *
 
 import svgwrite
 
-#handle_stories()
+handle_stories()
 
 data = db()
 
@@ -15,7 +15,7 @@ width = 800
 columnheight = 10
 columnborder = 3
 
-textwidth = 100
+textwidth = 150
 imageborder = 20
 
 ul = (-(textwidth + imageborder), -imageborder)
