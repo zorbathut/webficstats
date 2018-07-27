@@ -7,6 +7,7 @@ import re
 import time
 
 from urllib.parse import urlparse, urljoin
+from atomicwrites import atomic_write
 
 def load_from_yaml():
     with open('stories.yaml', 'r') as f:
@@ -48,7 +49,7 @@ def save_cache(optional = False):
     if optional and last_save + 15 > time.time():
         return  # not yet
 
-    with open('cache.yaml', 'w') as f:
+    with atomic_write('cache.yaml', overwrite=True) as f:
         yaml.dump({k: v.data for (k, v) in db().items()}, f)
         last_save = time.time()
 
