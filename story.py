@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
 from urllib.parse import urlparse, urljoin
 import itertools
+import threading
 
 def words_of_entries(entries):
     words = 0
@@ -70,7 +71,8 @@ def handle_page(url, story):
 def handle_story(story):
     # get rid of the last page, just in case it's changed (we expect this)
     if len(story.data.pages) > 0:
-        story.data.pages.pop()
+        with cache_lock():
+            story.data.pages.pop()
 
     # either use the final next if available, or the base URL
     if len(story.data.pages) > 0:
@@ -80,12 +82,18 @@ def handle_story(story):
 
     while url != None:
         page = handle_page(url, story)
-        story.data.pages += [page]
+        with cache_lock():
+            story.data.pages += [page]
         url = page.next
         save_cache(optional = True)
 
 def handle_stories():
+    threads = []
     for id, story in db().items():
-        handle_story(story)
+        threads.append(threading.Thread(target = lambda: handle_story(story)))
+        threads[-1].start()
+
+    for thread in threads:
+        thread.join()
 
     save_cache()

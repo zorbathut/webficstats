@@ -5,6 +5,7 @@ import yaml
 import strictyaml
 import re
 import time
+import threading
 
 from urllib.parse import urlparse, urljoin
 from atomicwrites import atomic_write
@@ -43,15 +44,22 @@ def load_from_yaml():
 
     return stories
 
+cache_lock_inst = threading.Lock()
+def cache_lock():
+    global cache_lock_inst
+    return cache_lock_inst
+
 last_save = 0
 def save_cache(optional = False):
     global last_save
-    if optional and last_save + 15 > time.time():
-        return  # not yet
 
-    with atomic_write('cache.yaml', overwrite=True) as f:
-        yaml.dump({k: v.data for (k, v) in db().items()}, f)
-        last_save = time.time()
+    with cache_lock():
+        if optional and last_save + 15 > time.time():
+            return  # not yet
+
+        with atomic_write('cache.yaml', overwrite=True) as f:
+            yaml.dump({k: v.data for (k, v) in db().items()}, f)
+            last_save = time.time()
 
 database_storage = None
 def db():
