@@ -1,6 +1,7 @@
 worm:
   name: Worm
   url: https://parahumans.wordpress.com/2011/06/11/1-1/
+  finished: True
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -9,6 +10,7 @@ worm:
 pact:
   name: Pact
   url: https://pactwebserial.wordpress.com/2013/12/17/bonds-1-1/
+  finished: True
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -17,6 +19,7 @@ pact:
 twig:
   name: Twig
   url: https://twigserial.wordpress.com/2014/12/24/taking-root-1-1/
+  finished: True
   nextlinkclass: .entry-content p a
   nextlinktext: Next
   contentblockbegin: 1

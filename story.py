@@ -22,7 +22,7 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength):
+    def __init__(self, name, url, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
         self.name = name
         self.url = url
         self.nextlinkclass = nextlinkclass
@@ -31,6 +31,7 @@ class StoryInfo:
         self.contentblockend = contentblockend
         self.domains = domains
         self.zerolength = zerolength
+        self.finished = finished
         self.data = None;
 
     def words_total(self):

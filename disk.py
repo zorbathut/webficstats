@@ -25,6 +25,7 @@ def load_from_yaml():
             int(value['contentblockend'].text) if ('contentblockend' in value) else 0,
             value['domains'] if 'domains' in value else urlparse(value['url'].text).netloc,
             value['zerolength'] if 'zerolength' in value else [],
+            bool(value['finished'].text) if 'finished' in value else False,
         )
 
     try:
