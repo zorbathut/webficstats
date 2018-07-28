@@ -22,9 +22,10 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
+    def __init__(self, name, url, color, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
         self.name = name
         self.url = url
+        self.color = '#' + color
         self.nextlinkclass = nextlinkclass
         self.nextlinktext = nextlinktext
         self.contentblockbegin = contentblockbegin

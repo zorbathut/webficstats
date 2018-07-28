@@ -22,12 +22,6 @@ def render():
 
     dwg = svgwrite.Drawing(filename='quantity.svg', debug=True)
 
-    gradient = dwg.linearGradient((0, 0), (1, 0))
-    gradient.add_stop_color(0, 'black', opacity=0.3)
-    gradient.add_stop_color(1, 'black', opacity=0)
-    dwg.defs.add(gradient)
-
-
     dwg.viewbox(
         minx = ul[0],
         miny = ul[1],
@@ -38,8 +32,13 @@ def render():
     for idx, story in enumerate(sortedstories):
         start = (0, idx * columnheight + columnborder)
         size = (story.words_total() / longestlength * width, columnheight - columnborder * 2)
-        dwg.add(dwg.rect(start, size))
+        dwg.add(dwg.rect(start, size, fill = story.color))
         if not story.finished:
+            gradient = dwg.linearGradient((0, 0), (1, 0))
+            gradient.add_stop_color(0, story.color, opacity=0.3)
+            gradient.add_stop_color(1, story.color, opacity=0)
+            dwg.defs.add(gradient)
+
             dwg.add(dwg.rect((start[0] + size[0], start[1] + 1), (20, size[1] - 2), fill = gradient.get_paint_server()))
         dwg.add(dwg.text(story.name, insert = (-5, (idx + 0.8) * columnheight), text_anchor = 'end', font_size = 10, alignment_baseline = 'middle'))
     dwg.save()

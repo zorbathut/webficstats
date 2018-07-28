@@ -19,6 +19,7 @@ def load_from_yaml():
         stories[key.text] = story.StoryInfo(
             value['name'].text,
             value['url'].text,
+            value['color'].text,
             value['nextlinkclass'].text,
             value['nextlinktext'].text,
             int(value['contentblockbegin'].text) if ('contentblockbegin' in value) else 0,
