@@ -1,12 +1,13 @@
 
-from web import *
-from disk import *
+import web
+import disk
 
 from bs4 import BeautifulSoup
 from dateutil.parser import parse as dateutilparse
 from urllib.parse import urlparse, urljoin
 import itertools
 import threading
+import re
 
 def words_of_entries(entries):
     words = 0
@@ -48,7 +49,7 @@ class StoryData:
         self.pages = []
 
 def handle_page(url, story):
-    page = simple_get(url)
+    page = web.simple_get(url)
     html = BeautifulSoup(page, 'html.parser')
 
     date = dateutilparse(html.select_one('.entry-date').get_text())
@@ -71,7 +72,7 @@ def handle_page(url, story):
 def handle_story(story):
     # get rid of the last page, just in case it's changed (we expect this)
     if len(story.data.pages) > 0:
-        with cache_lock():
+        with disk.cache_lock():
             story.data.pages.pop()
 
     # either use the final next if available, or the base URL
@@ -82,18 +83,22 @@ def handle_story(story):
 
     while url != None:
         page = handle_page(url, story)
-        with cache_lock():
+        with disk.cache_lock():
             story.data.pages += [page]
         url = page.next
-        save_cache(optional = True)
+        disk.save_cache(optional = True)
 
-def handle_stories():
-    threads = []
-    for id, story in db().items():
-        threads.append(threading.Thread(target = lambda: handle_story(story)))
-        threads[-1].start()
+def handle_stories(allowthreads):
+    if allowthreads:
+        threads = []
+        for id, story in disk.db().items():
+            threads.append(threading.Thread(target = lambda: handle_story(story)))
+            threads[-1].start()
 
-    for thread in threads:
-        thread.join()
+        for thread in threads:
+            thread.join()
+    else:
+        for id, story in disk.db().items():
+            handle_story(story)
 
-    save_cache()
+    disk.save_cache()
