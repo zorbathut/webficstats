@@ -4,6 +4,7 @@ from disk import *
 import svgwrite
 import util_math
 import datetime
+import dateutil.parser
 
 def render():
     render_lengths()

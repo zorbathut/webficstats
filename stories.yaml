@@ -30,6 +30,7 @@ twig:
   nextlinktext: Next
   contentblockbegin: 1
   contentblockend: 1
+  overridestart: March 14, 2015
 
 ward:
   name: Ward

@@ -3,12 +3,12 @@ import web
 import disk
 
 from bs4 import BeautifulSoup
-from dateutil.parser import parse as dateutilparse
 from urllib.parse import urlparse, urljoin
 import itertools
 import threading
 import re
 import datetime
+import dateutil.parser
 
 def words_of_entries(entries):
     words = 0
@@ -23,7 +23,7 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, color, contentclass, validationclass, validationtext, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
+    def __init__(self, name, url, color, contentclass, validationclass, validationtext, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished, overridestart):
         self.name = name
         self.url = url
         self.color = '#' + color
@@ -37,6 +37,7 @@ class StoryInfo:
         self.domains = domains
         self.zerolength = zerolength
         self.finished = finished
+        self.overridestart = overridestart
         self.data = None;
 
     def words_total(self):
@@ -54,7 +55,7 @@ class StoryInfo:
         week_length = 7
         weeks_to_average = 8
         average_size = week_length * weeks_to_average
-        start = self.data.pages[0].date
+        start = dateutil.parser.parse(self.overridestart) if self.overridestart is not None else self.data.pages[0].date
         results = []
         for rend in [start + datetime.timedelta(days = x) for x in range(average_size - 1, (self.data.pages[-1].date - start).days)]:
             rstart = rend - datetime.timedelta(days = average_size)
@@ -71,7 +72,7 @@ def handle_page(url, story):
         raise RuntimeError(f'Page {url} failed to download: {err}')
     html = BeautifulSoup(page, 'html.parser')
 
-    date = dateutilparse(html.select_one('.entry-date').get_text())
+    date = dateutil.parser.parse(html.select_one('.entry-date').get_text())
     words = words_of_entries(story.contentblock_crop(html.select(story.contentclass)))
 
     if words <= 0 and url not in story.zerolength:
