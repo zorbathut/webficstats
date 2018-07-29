@@ -63,7 +63,9 @@ class StoryData:
         self.pages = []
 
 def handle_page(url, story):
-    page = web.simple_get(url)
+    page, err = web.simple_get(url)
+    if page is None:
+        raise RuntimeError(f'Page {url} failed to download: {err}')
     html = BeautifulSoup(page, 'html.parser')
 
     date = dateutilparse(html.select_one('.entry-date').get_text())

@@ -73,3 +73,11 @@ legion:
   nextlinktext: Next Post.*
   zerolength:
     - http://inmydaydreams.com/?p=6845
+
+unsong:
+  name: Unsong
+  url: http://unsongbook.com/prologue-2/
+  color: af9334
+  nextlinkclass: .pjgm-navnext a
+  nextlinktext: .*
+  

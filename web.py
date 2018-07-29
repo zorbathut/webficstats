@@ -12,15 +12,15 @@ def simple_get(url):
     text content, otherwise return None.
     """
     try:
-        with closing(get(url, stream=True)) as resp:
+        with closing(get(url, stream=True, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'})) as resp:
             if is_good_response(resp):
-                return resp.content
+                return resp.content, None
             else:
-                return None
+                return None, resp
 
     except RequestException as e:
         log_error('Error during requests to {0} : {1}'.format(url, str(e)))
-        return None
+        return None, str(e)
 
 
 def is_good_response(resp):
