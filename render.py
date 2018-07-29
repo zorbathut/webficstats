@@ -174,20 +174,15 @@ def render_words_per_week():
             alignment_baseline = 'hanging',
             fill_opacity = 0.5 ))
 
+    endtexts = []
     for story, data in storystats:
         line = []
         for date, amount in data:
             line += [(util_math.remap(xmin, xmax, 0, width, date), util_math.remap(0, biggeststat, height, 0, amount))]
         dwg.add(dwg.polyline(line, fill = 'none', stroke = story.color))
         if not story.finished:
-            # put it at the end
-            dwg.add(dwg.text(story.name,
-                insert = (width + 5, util_math.remap(0, biggeststat, height, 0, data[-1][1])),
-                text_anchor = 'start',
-                font_family = 'Arial',
-                font_size = 10,
-                alignment_baseline = 'middle',
-                fill = story.color))
+            # add it to our list, we'll composite them together later
+            endtexts += [(story, int(util_math.remap(0, biggeststat, height, 0, data[-1][1])))]
         else:
             # put it in the middle
             # but bump it up enough that it won't hit the story's line
@@ -204,6 +199,42 @@ def render_words_per_week():
                 font_size = 10,
                 alignment_baseline = 'baseline',
                 fill = story.color))
+
+    while True:
+        bumped = False
+
+        bumppos = {}
+        bumpneg = {}
+
+        for source, sposition in endtexts:
+            for target, eposition in endtexts:
+                if source == target:
+                    continue
+
+                if abs(eposition - sposition) < 10:
+                    bumped = True
+                    if eposition < sposition:
+                        bumppos[source] = True
+                    else:
+                        bumpneg[source] = True
+
+        if not bumped:
+            break
+
+        for index in range(len(endtexts)):
+            if endtexts[index][0] in bumppos:
+                endtexts[index] = (endtexts[index][0], endtexts[index][1] + 1)
+            if endtexts[index][0] in bumpneg:
+                endtexts[index] = (endtexts[index][0], endtexts[index][1] - 1)
+
+    for story, position in endtexts:
+        dwg.add(dwg.text(story.name,
+            insert = (width + 5, position),
+            text_anchor = 'start',
+            font_family = 'Arial',
+            font_size = 10,
+            alignment_baseline = 'middle',
+            fill = story.color))
 
     dwg.save()
 
