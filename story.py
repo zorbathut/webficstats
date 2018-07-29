@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urljoin
 import itertools
 import threading
 import re
+import datetime
 
 def words_of_entries(entries):
     words = 0
@@ -45,6 +46,17 @@ class StoryInfo:
             return blocks[self.contentblockbegin:]
         else:
             return blocks
+
+    def words_per_week(self):
+        week_length = 7
+        weeks_to_average = 8
+        average_size = week_length * weeks_to_average
+        start = self.data.pages[0].date
+        results = []
+        for rend in [start + datetime.timedelta(days = x) for x in range(average_size - 1, (self.data.pages[-1].date - start).days)]:
+            rstart = rend - datetime.timedelta(days = average_size)
+            results += [(rend, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / weeks_to_average)]
+        return results
 
 class StoryData:
     def __init__(self):

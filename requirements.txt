@@ -4,6 +4,7 @@ certifi==2018.4.16
 chardet==3.0.4
 idna==2.7
 pkg-resources==0.0.0
+pycairo==1.17.1
 pyparsing==2.2.0
 python-dateutil==2.7.3
 PyYAML==3.13
