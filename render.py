@@ -94,7 +94,9 @@ def render_lengths():
 def render_words_per_week():
     data = db()
 
-    storystats = [(v, v.words_per_week()) for (k, v) in data.items()]
+    weeks = 8
+
+    storystats = [(v, v.words_per_week(weeks)) for (k, v) in data.items()]
     biggeststat = max(max(v[1] for v in data) for story, data in storystats) * 1.1  # little extra just so the graph isn't ending at the exact box edge
 
     xmin = min(data[0][0] for story, data in storystats)
@@ -120,7 +122,7 @@ def render_words_per_week():
     dwg.add(dwg.rect(ul, size, fill='ghostwhite'))
     dwg.add(dwg.polyline([(0, 0), (0, height), (width, height)], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
 
-    dwg.add(dwg.text('Words published per week (8wk rolling average)',
+    dwg.add(dwg.text(f'Words published per week ({weeks}wk rolling average)',
         insert = ((ul[0] + br[0]) / 2, -10),
         font_family = 'Arial',
         font_size = 14,

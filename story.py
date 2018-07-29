@@ -53,9 +53,8 @@ class StoryInfo:
         else:
             return blocks
 
-    def words_per_week(self):
+    def words_per_week(self, weeks_to_average):
         week_length = 7
-        weeks_to_average = 8
         average_size = week_length * weeks_to_average
         start = dateutil.parser.parse(self.overridestart) if self.overridestart is not None else self.data.pages[0].date
         results = []
