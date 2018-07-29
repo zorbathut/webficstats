@@ -18,12 +18,13 @@ def render_lengths():
     width = 800
     columnheight = 10
     columnborder = 3
+    height = columnheight * len(sortedstories)
 
     textwidth = 150
     imageborder = 20
 
-    ul = (-(textwidth + imageborder), -imageborder)
-    br = (width + imageborder, columnheight * len(sortedstories) + imageborder)
+    ul = (-(textwidth + imageborder), -imageborder - 10)
+    br = (width + imageborder, height + imageborder + 10)
     size = (br[0] - ul[0], br[1] - ul[1])
 
     dwg = svgwrite.Drawing(filename='quantity.svg', debug=True)
@@ -34,7 +35,43 @@ def render_lengths():
         width = size[0],
         height = size[1])
     dwg.add(dwg.rect(ul, size, fill='ghostwhite'))
-    dwg.add(dwg.polyline([(0, 0), (0, columnheight * len(sortedstories)), (width, columnheight * len(sortedstories))], fill = 'none', stroke = 'black'))
+    dwg.add(dwg.polyline([(0, 0), (0, columnheight * len(sortedstories)), (width, columnheight * len(sortedstories))], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
+
+    dwg.add(dwg.text('Total word count',
+        insert = ((ul[0] + br[0]) / 2, -10),
+        font_family = 'Arial',
+        font_size = 14,
+        text_anchor = 'middle',
+        alignment_baseline = 'middle',
+        fill_opacity = 0.8 ))
+
+    for words in range(0, int(longestlength), 100000):
+        if words == 0:
+            continue
+        if words < 1000000:
+            text = str(int(words / 1000)) + 'k'
+        else:
+            text = str(words / 1000000) + 'm'
+
+        xpos = util_math.remap(0, longestlength, 0, width, words)
+        dwg.add(dwg.line((xpos, 0), (xpos, height), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        dwg.add(dwg.text(text,
+            insert = (xpos, height + 10),
+            font_family = 'Arial',
+            font_size = 8,
+            text_anchor = 'middle',
+            alignment_baseline = 'hanging',
+            fill_opacity = 0.5 ))
+
+        if words == 100000:
+            dwg.add(dwg.text('(standard full-length novel)',
+                insert = (xpos, height + 20),
+                font_family = 'Arial',
+                font_size = 8,
+                text_anchor = 'middle',
+                alignment_baseline = 'hanging',
+                fill_opacity = 0.5 ))
+
     for idx, story in enumerate(sortedstories):
         start = (0, idx * columnheight + columnborder)
         size = (story.words_total() / longestlength * width, columnheight - columnborder * 2)
@@ -49,6 +86,7 @@ def render_lengths():
         dwg.add(dwg.text(story.name,
             insert = (-5, (idx + 0.8) * columnheight),
             text_anchor = 'end',
+            font_family = 'Arial',
             font_size = 10,
             alignment_baseline = 'middle'))
     dwg.save()
