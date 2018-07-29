@@ -4,6 +4,7 @@ worm:
   color: 5e4b2b
   finished: True
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -15,6 +16,7 @@ pact:
   color: 632b2b
   finished: True
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -26,6 +28,7 @@ twig:
   color: 3a5e26
   finished: True
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next
   contentblockbegin: 1
@@ -37,6 +40,7 @@ ward:
   url: https://www.parahumans.net/2017/10/21/glow-worm-0-1/
   color: 725f1e
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -48,6 +52,7 @@ tgab:
   url: https://tiraas.wordpress.com/2014/08/20/book-1-prologue/
   color: 605623
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next\s+(Chapter|Page) >
   contentblockbegin: 1
@@ -58,6 +63,7 @@ guidetoevil:
   url: https://practicalguidetoevil.wordpress.com/2015/03/25/prologue/
   color: 474747
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .nav-next a
   nextlinktext: Next .*
 
@@ -66,6 +72,7 @@ wanderinginn:
   url: https://wanderinginn.com/2016/07/27/1-00/
   color: 264b60
   contentclass: .entry-content p
+  dateclass: .entry-date
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockend: 1
@@ -78,6 +85,7 @@ legion:
   url: http://inmydaydreams.com/?p=5
   color: 594026
   contentclass: .entry-content p
+  dateclass: .entry-date
   validationclass: .cat-links a
   validationtext: Arc.*
   nextlinkclass: .nav-links a
@@ -91,9 +99,23 @@ unsong:
   color: af9334
   finished: True
   contentclass: .pjgm-postcontent p
+  dateclass: .entry-date
   validationclass: .pjgm-postutility a
   validationtext: book
   nextlinkclass: .pjgm-navnex a
   nextlinktext: .*
   zerolength:
     - http://unsongbook.com/book-i-genesis/
+
+skull:
+  name: The Last Skull
+  url: http://the-last-skull.blogspot.com/2010/06/beginning-1.html
+  color: 303030
+  finished: True
+  contentclass: .entry-content
+  dateclass: .date-header
+  validationclass: .post-labels a
+  validationtext: News
+  validationinvert: True
+  nextlinkclass: .entry-content a
+  nextlinktext: Next->

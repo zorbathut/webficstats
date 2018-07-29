@@ -23,13 +23,15 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, color, contentclass, validationclass, validationtext, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished, overridestart):
+    def __init__(self, name, url, color, contentclass, dateclass, validationclass, validationtext, validationinvert, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished, overridestart):
         self.name = name
         self.url = url
         self.color = '#' + color
         self.contentclass = contentclass
+        self.dateclass = dateclass
         self.validationclass = validationclass
         self.validationtext = validationtext
+        self.validationinvert = validationinvert
         self.nextlinkclass = nextlinkclass
         self.nextlinktext = nextlinktext
         self.contentblockbegin = contentblockbegin
@@ -72,7 +74,7 @@ def handle_page(url, story):
         raise RuntimeError(f'Page {url} failed to download: {err}')
     html = BeautifulSoup(page, 'html.parser')
 
-    date = dateutil.parser.parse(html.select_one('.entry-date').get_text())
+    date = dateutil.parser.parse(html.select_one(story.dateclass).get_text())
     words = words_of_entries(story.contentblock_crop(html.select(story.contentclass)))
 
     if words <= 0 and url not in story.zerolength:
@@ -85,10 +87,16 @@ def handle_page(url, story):
     else:
         next = None
 
+    # it's weirdly common to just link "next" back to the epilogue, so let's catch that
+    if next == url:
+        next = None
+
     if story.validationclass != None:
         validated = False
         for element in html.select(story.validationclass):
             validated = validated or re.match(story.validationtext, element.get_text().strip())
+        if story.validationinvert:
+            validated = not validated
     else:
         validated = True
 
