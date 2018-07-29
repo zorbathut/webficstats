@@ -23,10 +23,11 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, color, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
+    def __init__(self, name, url, color, contentclass, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
         self.name = name
         self.url = url
         self.color = '#' + color
+        self.contentclass = contentclass
         self.nextlinkclass = nextlinkclass
         self.nextlinktext = nextlinktext
         self.contentblockbegin = contentblockbegin
@@ -69,7 +70,7 @@ def handle_page(url, story):
     html = BeautifulSoup(page, 'html.parser')
 
     date = dateutilparse(html.select_one('.entry-date').get_text())
-    words = words_of_entries(story.contentblock_crop(html.select('.entry-content p')))
+    words = words_of_entries(story.contentblock_crop(html.select(story.contentclass)))
 
     if words <= 0 and url not in story.zerolength:
         raise RuntimeError(f'Zero words detected in chapter {url}; that is never right')

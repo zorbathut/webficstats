@@ -3,6 +3,7 @@ worm:
   url: https://parahumans.wordpress.com/2011/06/11/1-1/
   color: 5e4b2b
   finished: True
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -13,6 +14,7 @@ pact:
   url: https://pactwebserial.wordpress.com/2013/12/17/bonds-1-1/
   color: 632b2b
   finished: True
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -23,6 +25,7 @@ twig:
   url: https://twigserial.wordpress.com/2014/12/24/taking-root-1-1/
   color: 3a5e26
   finished: True
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next
   contentblockbegin: 1
@@ -32,6 +35,7 @@ ward:
   name: Ward
   url: https://www.parahumans.net/2017/10/21/glow-worm-0-1/
   color: 725f1e
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockbegin: 1
@@ -42,6 +46,7 @@ tgab:
   name: The Gods are Bastards
   url: https://tiraas.wordpress.com/2014/08/20/book-1-prologue/
   color: 605623
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next\s+(Chapter|Page) >
   contentblockbegin: 1
@@ -51,6 +56,7 @@ guidetoevil:
   name: A Practical Guide to Evil
   url: https://practicalguidetoevil.wordpress.com/2015/03/25/prologue/
   color: 474747
+  contentclass: .entry-content p
   nextlinkclass: .nav-next a
   nextlinktext: Next .*
 
@@ -58,6 +64,7 @@ wanderinginn:
   name: The Wandering Inn
   url: https://wanderinginn.com/2016/07/27/1-00/
   color: 264b60
+  contentclass: .entry-content p
   nextlinkclass: .entry-content p a
   nextlinktext: Next Chapter
   contentblockend: 1
@@ -69,6 +76,7 @@ legion:
   name: The Legion of Nothing
   url: http://inmydaydreams.com/?p=5
   color: 594026
+  contentclass: .entry-content p
   nextlinkclass: .nav-links a
   nextlinktext: Next Post.*
   zerolength:
@@ -78,6 +86,9 @@ unsong:
   name: Unsong
   url: http://unsongbook.com/prologue-2/
   color: af9334
-  nextlinkclass: .pjgm-navnext a
+  finished: True
+  contentclass: .pjgm-postcontent p
+  nextlinkclass: .pjgm-navnex a
   nextlinktext: .*
-  
+  zerolength:
+    - http://unsongbook.com/book-i-genesis/
