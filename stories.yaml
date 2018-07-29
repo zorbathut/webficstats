@@ -77,6 +77,8 @@ legion:
   url: http://inmydaydreams.com/?p=5
   color: 594026
   contentclass: .entry-content p
+  validationclass: .cat-links a
+  validationtext: Arc.*
   nextlinkclass: .nav-links a
   nextlinktext: Next Post.*
   zerolength:
@@ -88,6 +90,8 @@ unsong:
   color: af9334
   finished: True
   contentclass: .pjgm-postcontent p
+  validationclass: .pjgm-postutility a
+  validationtext: book
   nextlinkclass: .pjgm-navnex a
   nextlinktext: .*
   zerolength:

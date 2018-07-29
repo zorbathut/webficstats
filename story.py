@@ -23,11 +23,13 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, color, contentclass, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
+    def __init__(self, name, url, color, contentclass, validationclass, validationtext, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished):
         self.name = name
         self.url = url
         self.color = '#' + color
         self.contentclass = contentclass
+        self.validationclass = validationclass
+        self.validationtext = validationtext
         self.nextlinkclass = nextlinkclass
         self.nextlinktext = nextlinktext
         self.contentblockbegin = contentblockbegin
@@ -82,9 +84,16 @@ def handle_page(url, story):
     else:
         next = None
 
-    print(f'{url}, {date}: {words}, {next}')
+    if story.validationclass != None:
+        validated = False
+        for element in html.select(story.validationclass):
+            validated = validated or re.match(story.validationtext, element.get_text().strip())
+    else:
+        validated = True
 
-    return PageInfo(date, words, next)
+    print(f'{url}, {date}: {words}, {next}' + (" (SKIPPED)" if not validated else ""))
+
+    return PageInfo(date, words, next), validated
 
 def handle_story(story):
     # get rid of the last page, just in case it's changed (we expect this)
@@ -99,11 +108,12 @@ def handle_story(story):
         url = story.url
 
     while url != None:
-        page = handle_page(url, story)
-        with disk.cache_lock():
-            story.data.pages += [page]
+        page, validated = handle_page(url, story)
         url = page.next
-        disk.save_cache(optional = True)
+        if validated:
+            with disk.cache_lock():
+                story.data.pages += [page]
+            disk.save_cache(optional = True)
 
 def handle_stories(allowthreads):
     if allowthreads:

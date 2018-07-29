@@ -21,6 +21,8 @@ def load_from_yaml():
             value['url'].text,
             value['color'].text,
             value['contentclass'].text,
+            value['validationclass'].text if 'validationclass' in value else None,
+            value['validationtext'].text if 'validationtext' in value else None,
             value['nextlinkclass'].text,
             value['nextlinktext'].text,
             int(value['contentblockbegin'].text) if ('contentblockbegin' in value) else 0,
