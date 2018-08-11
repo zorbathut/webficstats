@@ -166,7 +166,6 @@ def render_words_per_post():
         render_words_per_post_legend)
 
 def render_words_per_post_legend(dwg, width, height, biggeststat):
-    print(biggeststat)
     for amount, label in [(n, str(n) + " words") for n in range(0, int(biggeststat) + 1, 1000)]:
         if amount == 0:
             continue
@@ -307,6 +306,10 @@ def render_standard_chart(filename, storystats, title, legend):
                     bumped = True
                     if eposition < sposition:
                         bumppos[source] = True
+                    elif sposition < eposition:
+                        bumpneg[source] = True
+                    elif source.name < target.name:
+                        bumppos[source] = True
                     else:
                         bumpneg[source] = True
 
@@ -320,7 +323,7 @@ def render_standard_chart(filename, storystats, title, legend):
                 endtexts[index] = (endtexts[index][0], endtexts[index][1] - 1)
 
     if cyclesremaining == 0:
-        print("Early exit from rearrangement code, this is probably a sign that something went wrong")
+        print(f"Rearrangement complete with {cyclesremaining} remaining")
 
     for story, position in endtexts:
         dwg.add(dwg.text(story.name,
