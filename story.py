@@ -9,6 +9,7 @@ import threading
 import re
 import datetime
 import dateutil.parser
+import math
 
 def words_of_entries(entries):
     words = 0
@@ -65,22 +66,11 @@ class StoryInfo:
         for center in [start + datetime.timedelta(days = x) for x in range(0, (self.data.pages[-1].date - start).days)]:
             rstart = center - datetime.timedelta(days = average_size / 2)
             rend = center + datetime.timedelta(days = average_size / 2)
-            rstartweeks = floor((center - max(rstart, self.statstart())).days() / 7)
-            rendweeks = floor((min(rend, self.data.pages[-1].date) - center).days() / 7)
+            rstartweeks = math.floor((center - max(rstart, self.statstart())).days / 7)
+            rendweeks = math.floor((min(rend, self.data.pages[-1].date) - center).days / 7)
             rstart = center - datetime.timedelta(days = rstartweeks * 7)
             rend = center + datetime.timedelta(days = rendweeks * 7)
             results += [(center, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / (rend - rstart).days * 7)]
-        return results
-
-
-    def words_per_week(self, weeks_to_average):
-        week_length = 7
-        average_size = week_length * weeks_to_average
-        start = dateutil.parser.parse(self.overridestart) if self.overridestart is not None else self.data.pages[0].date
-        results = []
-        for rend in [start + datetime.timedelta(days = x) for x in range(average_size - 1, (self.data.pages[-1].date - start).days)]:
-            rstart = rend - datetime.timedelta(days = average_size)
-            results += [(rend, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / weeks_to_average)]
         return results
 
 class StoryData:
