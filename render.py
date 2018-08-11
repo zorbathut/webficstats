@@ -8,6 +8,8 @@ import datetime
 def render():
     render_lengths()
     render_words_per_week()
+    render_words_per_post()
+    render_posts_per_week()
 
 def render_lengths():
     data = db()
@@ -96,12 +98,54 @@ def render_words_per_week():
 
     weeks = 8
 
-    print("Generating words per week . . .")
+    print(f"Generating words per week . . .")
     storystats = []
     for k, v in data.items():
         print("  " + v.name)
         storystats += [(v, v.words_per_week(weeks))]
-    print("Completed, generating main data")
+    print("Completed, rendering")
+
+    render_standard_chart(
+        "words_per_week.svg",
+        storystats,
+        f'Words published per week ({weeks}wk rolling average)')
+
+def render_words_per_post():
+    data = db()
+
+    weeks = 8
+
+    print(f"Generating words per post . . .")
+    storystats = []
+    for k, v in data.items():
+        print("  " + v.name)
+        storystats += [(v, v.words_per_post(weeks))]
+    print("Completed, rendering")
+
+    render_standard_chart(
+        "words_per_post.svg",
+        storystats,
+        f'Words published per post ({weeks}wk rolling average)')
+
+def render_posts_per_week():
+    data = db()
+
+    weeks = 4
+
+    print(f"Generating posts per week . . .")
+    storystats = []
+    for k, v in data.items():
+        print("  " + v.name)
+        storystats += [(v, v.posts_per_week(weeks))]
+    print("Completed, rendering")
+
+    render_standard_chart(
+        "posts_per_week.svg",
+        storystats,
+        f'Posts published per week ({weeks}wk rolling average)')
+
+def render_standard_chart(filename, storystats, title):
+
     biggeststat = max(max(v[1] for v in data) for story, data in storystats) * 1.1  # little extra just so the graph isn't ending at the exact box edge
 
     xmin = min(data[0][0] for story, data in storystats)
@@ -117,7 +161,7 @@ def render_words_per_week():
     br = (width + textwidth + imageborder, height + imageborder)
     size = (br[0] - ul[0], br[1] - ul[1])
 
-    dwg = svgwrite.Drawing(filename='words_per_week.svg', debug=True)
+    dwg = svgwrite.Drawing(filename=filename, debug=True)
 
     dwg.viewbox(
         minx = ul[0],
@@ -127,7 +171,7 @@ def render_words_per_week():
     dwg.add(dwg.rect(ul, size, fill='ghostwhite'))
     dwg.add(dwg.polyline([(0, 0), (0, height), (width, height)], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
 
-    dwg.add(dwg.text(f'Words published per week ({weeks}wk rolling average)',
+    dwg.add(dwg.text(title,
         insert = ((ul[0] + br[0]) / 2, -10),
         font_family = 'Arial',
         font_size = 14,

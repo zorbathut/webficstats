@@ -10,6 +10,7 @@ import re
 import datetime
 import dateutil.parser
 import math
+import statistics
 
 def words_of_entries(entries):
     words = 0
@@ -59,6 +60,15 @@ class StoryInfo:
         return dateutil.parser.parse(self.overridestart) if self.overridestart is not None else self.data.pages[0].date
 
     def words_per_week(self, weeks_to_average):
+        return self.smoothed_worker(weeks_to_average, sum, True)
+
+    def words_per_post(self, weeks_to_average):
+        return self.smoothed_worker(weeks_to_average, statistics.mean, False)
+
+    def posts_per_week(self, weeks_to_average):
+        return self.smoothed_worker(weeks_to_average, lambda data: sum(1 if words > 0 else 0 for words in data), True)
+
+    def smoothed_worker(self, weeks_to_average, func, per_week):
         week_length = 7
         average_size = week_length * weeks_to_average
         start = self.statstart()
@@ -70,7 +80,11 @@ class StoryInfo:
             rendweeks = math.floor((min(rend, self.data.pages[-1].date) - center).days / 7)
             rstart = center - datetime.timedelta(days = rstartweeks * 7)
             rend = center + datetime.timedelta(days = rendweeks * 7)
-            results += [(center, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / (rend - rstart).days * 7)]
+            if per_week:
+                divisor = (rend - rstart).days / 7
+            else:
+                divisor = 1
+            results += [(center, func((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / divisor)]
         return results
 
 class StoryData:
