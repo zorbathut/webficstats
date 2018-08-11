@@ -119,3 +119,20 @@ skull:
   validationinvert: True
   nextlinkclass: .entry-content a
   nextlinktext: Next->
+
+zombieknight:
+  name: The Zombie Knight
+  url: https://thezombieknight.blogspot.com/2013/04/page-1.html
+  color: 343838
+  contentclass: .entry-content span[style*="Courier"],.entry-content div[style*="Courier"],.entry-content span[style*="courier"],.entry-content span[style*="georgia"]
+  dateclass: .date-header
+  nextlinkclass: .blog-pager-newer-link
+  nextlinktext: Next Page
+  zerolength:
+    - https://thezombieknight.blogspot.com/2014/07/the-first-e-book-is-now-available-for.html
+    - https://thezombieknight.blogspot.com/2014/08/vol-2-ebook-is-now-available.html
+    - https://thezombieknight.blogspot.com/2015/01/vol-3-ebook-is-now-available.html
+    - https://thezombieknight.blogspot.com/2016/12/considering-title-change.html
+    - https://thezombieknight.blogspot.com/2017/12/extra-pages-and-whatnot.html
+    - https://thezombieknight.blogspot.com/2018/01/couple-announcements.html
+    - https://thezombieknight.blogspot.com/2018/07/normal-posting-will-resume-on-tuesday.html
