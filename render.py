@@ -96,7 +96,12 @@ def render_words_per_week():
 
     weeks = 8
 
-    storystats = [(v, v.words_per_week(weeks)) for (k, v) in data.items()]
+    print("Generating words per week . . .")
+    storystats = []
+    for k, v in data.items():
+        print("  " + v.name)
+        storystats += [(v, v.words_per_week(weeks))]
+    print("Completed, generating main data")
     biggeststat = max(max(v[1] for v in data) for story, data in storystats) * 1.1  # little extra just so the graph isn't ending at the exact box edge
 
     xmin = min(data[0][0] for story, data in storystats)
@@ -176,6 +181,7 @@ def render_words_per_week():
             alignment_baseline = 'hanging',
             fill_opacity = 0.5 ))
 
+    print("Placing unfinished legends")
     endtexts = []
     for story, data in storystats:
         line = []
@@ -202,7 +208,11 @@ def render_words_per_week():
                 alignment_baseline = 'baseline',
                 fill = story.color))
 
-    while True:
+    print("Placing finished legends")
+    cyclesremaining = 1000
+    while cyclesremaining > 0:
+        cyclesremaining = cyclesremaining - 1
+
         bumped = False
 
         bumppos = {}
@@ -228,6 +238,9 @@ def render_words_per_week():
                 endtexts[index] = (endtexts[index][0], endtexts[index][1] + 1)
             if endtexts[index][0] in bumpneg:
                 endtexts[index] = (endtexts[index][0], endtexts[index][1] - 1)
+
+    if cyclesremaining == 0:
+        print("Early exit from rearrangement code, this is probably a sign that something went wrong")
 
     for story, position in endtexts:
         dwg.add(dwg.text(story.name,
