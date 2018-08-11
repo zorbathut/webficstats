@@ -53,6 +53,24 @@ class StoryInfo:
         else:
             return blocks
 
+
+    def statstart(self):
+        return dateutil.parser.parse(self.overridestart) if self.overridestart is not None else self.data.pages[0].date
+
+    def words_per_week(self, weeks_to_average):
+        week_length = 7
+        average_size = week_length * weeks_to_average
+        start = self.statstart()
+        results = []
+        for center in [start + datetime.timedelta(days = x) for x in range(0, (self.data.pages[-1].date - start).days)]:
+            rstart = center - datetime.timedelta(days = average_size / 2)
+            rend = center + datetime.timedelta(days = average_size / 2)
+            estart = max(rstart, self.statstart())
+            eend = min(rend, self.data.pages[-1].date)
+            results += [(center, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / (eend - estart).days * 7)]
+        return results
+
+
     def words_per_week(self, weeks_to_average):
         week_length = 7
         average_size = week_length * weeks_to_average
