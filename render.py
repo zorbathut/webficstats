@@ -108,7 +108,44 @@ def render_words_per_week():
     render_standard_chart(
         "words_per_week.svg",
         storystats,
-        f'Words published per week ({weeks}wk rolling average)')
+        f'Words published per week ({weeks}wk rolling average)',
+        render_words_per_week_legend)
+
+def render_words_per_week_legend(dwg, width, height, biggeststat):
+    #add nanowrimo legends
+    for amount, label in [(50000 / 30 * 7, 'nanowrimo'), (50000 / 365 * 7, 'nanowriyr?')]:
+        ypos = util_math.remap(0, biggeststat, height, 0, amount)
+        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.15, stroke_dasharray="4 4"))
+        dwg.add(dwg.text(label,
+            insert = (-10, ypos + 3),
+            font_family = 'Arial',
+            font_size = 10,
+            font_style = 'italic',
+            text_anchor = 'end',
+            alignment_baseline = 'middle',
+            fill_opacity = 0.7))
+
+    dwg.add(dwg.text('^ nanowriwk (50k/wk)',
+        insert = (-65, -20),
+        font_family = 'Arial',
+        font_size = 10,
+        font_style = 'italic',
+        text_anchor = 'start',
+        alignment_baseline = 'middle',
+        fill_opacity = 0.7))
+
+    for amount, label in [(n * 1000, str(n) + "k/wk") for n in range(0, int(biggeststat / 1000) + 1, 5)]:
+        if amount == 0:
+            continue
+        ypos = util_math.remap(0, biggeststat, height, 0, amount)
+        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        dwg.add(dwg.text(label,
+            insert = (-10, ypos + 3),
+            font_family = 'Arial',
+            font_size = 8,
+            text_anchor = 'end',
+            alignment_baseline = 'middle',
+            fill_opacity = 0.5))
 
 def render_words_per_post():
     data = db()
@@ -125,7 +162,23 @@ def render_words_per_post():
     render_standard_chart(
         "words_per_post.svg",
         storystats,
-        f'Words published per post ({weeks}wk rolling average)')
+        f'Words published per post ({weeks}wk rolling average)',
+        render_words_per_post_legend)
+
+def render_words_per_post_legend(dwg, width, height, biggeststat):
+    print(biggeststat)
+    for amount, label in [(n, str(n) + " words") for n in range(0, int(biggeststat) + 1, 100)]:
+        if amount == 0:
+            continue
+        ypos = util_math.remap(0, biggeststat, height, 0, amount)
+        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        dwg.add(dwg.text(label,
+            insert = (-10, ypos + 3),
+            font_family = 'Arial',
+            font_size = 8,
+            text_anchor = 'end',
+            alignment_baseline = 'middle',
+            fill_opacity = 0.5))
 
 def render_posts_per_week():
     data = db()
@@ -142,9 +195,24 @@ def render_posts_per_week():
     render_standard_chart(
         "posts_per_week.svg",
         storystats,
-        f'Posts published per week ({weeks}wk rolling average)')
+        f'Posts published per week ({weeks}wk rolling average)',
+        render_posts_per_week_legend)
 
-def render_standard_chart(filename, storystats, title):
+def render_posts_per_week_legend(dwg, width, height, biggeststat):
+    for amount, label in [(n, str(n) + " posts") for n in range(0, int(biggeststat) + 1, 1)]:
+        if amount == 0:
+            continue
+        ypos = util_math.remap(0, biggeststat, height, 0, amount)
+        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        dwg.add(dwg.text(label,
+            insert = (-10, ypos + 3),
+            font_family = 'Arial',
+            font_size = 8,
+            text_anchor = 'end',
+            alignment_baseline = 'middle',
+            fill_opacity = 0.5))
+
+def render_standard_chart(filename, storystats, title, legend):
 
     biggeststat = max(max(v[1] for v in data) for story, data in storystats) * 1.1  # little extra just so the graph isn't ending at the exact box edge
 
@@ -179,40 +247,8 @@ def render_standard_chart(filename, storystats, title):
         alignment_baseline = 'middle',
         fill_opacity = 0.8 ))
 
-    #add nanowrimo legends
-    for amount, label in [(50000 / 30 * 7, 'nanowrimo'), (50000 / 365 * 7, 'nanowriyr?')]:
-        ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.15, stroke_dasharray="4 4"))
-        dwg.add(dwg.text(label,
-            insert = (-10, ypos + 3),
-            font_family = 'Arial',
-            font_size = 10,
-            font_style = 'italic',
-            text_anchor = 'end',
-            alignment_baseline = 'middle',
-            fill_opacity = 0.7 ))
-
-    dwg.add(dwg.text('^ nanowriwk (50k/wk)',
-        insert = (-65, -20),
-        font_family = 'Arial',
-        font_size = 10,
-        font_style = 'italic',
-        text_anchor = 'start',
-        alignment_baseline = 'middle',
-        fill_opacity = 0.7 ))
-
-    for amount, label in [(n * 1000, str(n) + "k/wk") for n in range(0, int(biggeststat / 1000) + 1, 5)]:
-        if amount == 0:
-            continue
-        ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(label,
-            insert = (-10, ypos + 3),
-            font_family = 'Arial',
-            font_size = 8,
-            text_anchor = 'end',
-            alignment_baseline = 'middle',
-            fill_opacity = 0.5 ))
+    if legend is not None:
+        legend(dwg, width, height, biggeststat)
 
     for year in range(xmin.year + 1, xmax.year + 1):
         xpos = util_math.remap(xmin, xmax, 0, width, datetime.datetime(year, 1, 1))
