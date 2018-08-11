@@ -65,9 +65,11 @@ class StoryInfo:
         for center in [start + datetime.timedelta(days = x) for x in range(0, (self.data.pages[-1].date - start).days)]:
             rstart = center - datetime.timedelta(days = average_size / 2)
             rend = center + datetime.timedelta(days = average_size / 2)
-            estart = max(rstart, self.statstart())
-            eend = min(rend, self.data.pages[-1].date)
-            results += [(center, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / (eend - estart).days * 7)]
+            rstartweeks = floor((center - max(rstart, self.statstart())).days() / 7)
+            rendweeks = floor((min(rend, self.data.pages[-1].date) - center).days() / 7)
+            rstart = center - datetime.timedelta(days = rstartweeks * 7)
+            rend = center + datetime.timedelta(days = rendweeks * 7)
+            results += [(center, sum((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / (rend - rstart).days * 7)]
         return results
 
 
