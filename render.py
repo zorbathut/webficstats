@@ -167,7 +167,7 @@ def render_words_per_post():
 
 def render_words_per_post_legend(dwg, width, height, biggeststat):
     print(biggeststat)
-    for amount, label in [(n, str(n) + " words") for n in range(0, int(biggeststat) + 1, 100)]:
+    for amount, label in [(n, str(n) + " words") for n in range(0, int(biggeststat) + 1, 1000)]:
         if amount == 0:
             continue
         ypos = util_math.remap(0, biggeststat, height, 0, amount)

@@ -63,7 +63,14 @@ class StoryInfo:
         return self.smoothed_worker(weeks_to_average, sum, True)
 
     def words_per_post(self, weeks_to_average):
-        return self.smoothed_worker(weeks_to_average, statistics.mean, False)
+        return self.smoothed_worker(weeks_to_average, self.meanornull, False)
+
+    def meanornull(self, input):
+        data = list(input)
+        if len(data) > 0:
+            return statistics.mean(data)
+        else:
+            return 0 # this is wrong, for now
 
     def posts_per_week(self, weeks_to_average):
         return self.smoothed_worker(weeks_to_average, lambda data: sum(1 if words > 0 else 0 for words in data), True)
@@ -84,7 +91,7 @@ class StoryInfo:
                 divisor = (rend - rstart).days / 7
             else:
                 divisor = 1
-            results += [(center, func((page.words if (page.date > rstart and page.date <= rend) else 0) for page in self.data.pages) / divisor)]
+            results += [(center, func(page.words for page in self.data.pages if page.date > rstart and page.date <= rend) / divisor)]
         return results
 
 class StoryData:
