@@ -285,6 +285,14 @@ def render_standard_chart(filename, storystats, title, legend):
                 font_family = 'Arial',
                 font_size = 10,
                 alignment_baseline = 'baseline',
+                stroke = 'ghostwhite',
+                stroke_width = 3))
+            dwg.add(dwg.text(story.name,
+                insert = (util_math.remap(xmin, xmax, 0, width, center[0]), util_math.remap(0, biggeststat, height, 0, top) - 10),
+                text_anchor = 'middle',
+                font_family = 'Arial',
+                font_size = 10,
+                alignment_baseline = 'baseline',
                 fill = story.color))
 
     print("Placing finished legends")
