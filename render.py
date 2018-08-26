@@ -15,7 +15,7 @@ def render_lengths():
     data = db()
 
     sortedstories = sorted((v for (k, v) in data.items()), key = lambda story: story.words_total())
-    longestlength = sortedstories[-1].words_total() * 1.03  # little extra just so the graph isn't ending at the exact box edge
+    longestlength = [v for v in sortedstories if v.posterityonly == False][-1].words_total() * 1.05  # little extra just so the graph isn't ending at the exact box edge
 
     width = 800
     columnheight = 10
@@ -26,7 +26,7 @@ def render_lengths():
     imageborder = 20
 
     ul = (-(textwidth + imageborder), -imageborder - 10)
-    br = (width + imageborder, height + imageborder + 10)
+    br = (width + imageborder + 20, height + imageborder + 10)
     size = (br[0] - ul[0], br[1] - ul[1])
 
     dwg = svgwrite.Drawing(filename='quantity.svg', debug=True)
@@ -76,7 +76,8 @@ def render_lengths():
 
     for idx, story in enumerate(sortedstories):
         start = (0, idx * columnheight + columnborder)
-        size = (story.words_total() / longestlength * width, columnheight - columnborder * 2)
+        words = story.words_total()
+        size = (words / longestlength * width, columnheight - columnborder * 2)
         dwg.add(dwg.rect(start, size, fill = story.color))
         if not story.finished:
             gradient = dwg.linearGradient((0, 0), (1, 0))
@@ -91,6 +92,13 @@ def render_lengths():
             font_family = 'Arial',
             font_size = 10,
             alignment_baseline = 'middle'))
+        if words > longestlength:
+            dwg.add(dwg.text(str(round(words / 1000000, 1)) + "m ->",
+                insert = (width + 5, (idx) * columnheight),
+                font_family = 'Arial',
+                font_size = 8,
+                fill_opacity = 0.5))
+
     dwg.save()
 
 def render_words_per_week():

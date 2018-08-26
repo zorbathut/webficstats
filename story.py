@@ -25,7 +25,7 @@ class PageInfo:
         self.next = next
 
 class StoryInfo:
-    def __init__(self, name, url, color, contentclass, dateclass, validationclass, validationtext, validationinvert, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished, overridestart):
+    def __init__(self, name, url, color, contentclass, dateclass, validationclass, validationtext, validationinvert, nextlinkclass, nextlinktext, contentblockbegin, contentblockend, domains, zerolength, finished, overridestart, posterityonly):
         self.name = name
         self.url = url
         self.color = '#' + color
@@ -42,6 +42,7 @@ class StoryInfo:
         self.zerolength = zerolength
         self.finished = finished
         self.overridestart = overridestart
+        self.posterityonly = posterityonly
         self.data = None;
 
     def words_total(self):
