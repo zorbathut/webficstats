@@ -153,3 +153,4 @@ ambience:
   contentclass: .storytext p
   nextlinkclass: button
   nextlinktext: Next >
+  posterityonly: True
