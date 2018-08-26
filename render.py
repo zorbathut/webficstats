@@ -6,41 +6,60 @@ import util_math
 import datetime
 
 def render():
-    render_lengths()
-    render_words_per_week()
-    render_words_per_post()
-    render_posts_per_week()
-
-def render_lengths():
-    data = db()
-
-    sortedstories = sorted((v for (k, v) in data.items()), key = lambda story: story.words_total())
-    longestlength = [v for v in sortedstories if v.posterityonly == False][-1].words_total() * 1.05  # little extra just so the graph isn't ending at the exact box edge
-
     width = 800
-    columnheight = 10
-    columnborder = 3
-    height = columnheight * len(sortedstories)
+    cy = 0
+
+    dwg = svgwrite.Drawing(filename='output.svg', debug=True)
+
+    bg = dwg.add(dwg.g())
+    fg = dwg.add(dwg.g())
+
+    # we want to pass in a child somehow
+    cy += render_lengths(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
+    cy += render_words_per_week(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
+    cy += render_words_per_post(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
+    cy += render_posts_per_week(dwg, subgroup(dwg, fg, (0, cy)), width) + 20
 
     textwidth = 150
     imageborder = 20
 
     ul = (-(textwidth + imageborder), -imageborder - 10)
-    br = (width + imageborder + 20, height + imageborder + 10)
+    br = (width + textwidth + imageborder, cy + imageborder + 10)
     size = (br[0] - ul[0], br[1] - ul[1])
 
-    dwg = svgwrite.Drawing(filename='quantity.svg', debug=True)
+    bg.add(dwg.rect(ul, size, fill='ghostwhite'))
 
     dwg.viewbox(
         minx = ul[0],
         miny = ul[1],
         width = size[0],
         height = size[1])
-    dwg.add(dwg.rect(ul, size, fill='ghostwhite'))
-    dwg.add(dwg.polyline([(0, 0), (0, columnheight * len(sortedstories)), (width, columnheight * len(sortedstories))], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
+    dwg['width'] = size[1]
 
-    dwg.add(dwg.text('Total word count',
-        insert = ((ul[0] + br[0]) / 2, -10),
+    clip_path = dwg.defs.add(dwg.clipPath())
+    clip_path.add(dwg.rect(ul, size))
+
+    fg['style'] = f"clip-path: url(#{clip_path.get_iri()});"
+
+    dwg.save()
+
+def subgroup(dwg, fg, origin):
+    return fg.add(dwg.g(transform = f"translate({origin[0]},{origin[1]})"))
+
+def render_lengths(dwg, g, width):
+    data = db()
+
+    sortedstories = sorted((v for (k, v) in data.items()), key = lambda story: story.words_total())
+    longestlength = [v for v in sortedstories if v.posterityonly == False][-1].words_total() * 1.05  # little extra just so the graph isn't ending at the exact box edge
+
+    columnheight = 10
+    columnborder = 3
+    height = columnheight * len(sortedstories)
+
+    g.add(dwg.polyline([(0, 0), (0, columnheight * len(sortedstories)), (width, columnheight * len(sortedstories))], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
+
+    g.add(dwg.text('Total word count',
+        insert = (width / 2, -10),
         font_family = 'Arial',
         font_size = 14,
         text_anchor = 'middle',
@@ -56,8 +75,8 @@ def render_lengths():
             text = str(words / 1000000) + 'm'
 
         xpos = util_math.remap(0, longestlength, 0, width, words)
-        dwg.add(dwg.line((xpos, 0), (xpos, height), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(text,
+        g.add(dwg.line((xpos, 0), (xpos, height), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        g.add(dwg.text(text,
             insert = (xpos, height + 10),
             font_family = 'Arial',
             font_size = 8,
@@ -66,7 +85,7 @@ def render_lengths():
             fill_opacity = 0.5 ))
 
         if words == 100000:
-            dwg.add(dwg.text('(standard full-length novel)',
+            g.add(dwg.text('(standard full-length novel)',
                 insert = (xpos, height + 20),
                 font_family = 'Arial',
                 font_size = 8,
@@ -78,30 +97,31 @@ def render_lengths():
         start = (0, idx * columnheight + columnborder)
         words = story.words_total()
         size = (words / longestlength * width, columnheight - columnborder * 2)
-        dwg.add(dwg.rect(start, size, fill = story.color))
+        g.add(dwg.rect(start, size, fill = story.color))
         if not story.finished:
             gradient = dwg.linearGradient((0, 0), (1, 0))
             gradient.add_stop_color(0, story.color, opacity=0.3)
             gradient.add_stop_color(1, story.color, opacity=0)
             dwg.defs.add(gradient)
 
-            dwg.add(dwg.rect((start[0] + size[0], start[1] + 1), (20, size[1] - 2), fill = gradient.get_paint_server()))
-        dwg.add(dwg.text(story.name,
+            g.add(dwg.rect((start[0] + size[0], start[1] + 1), (20, size[1] - 2), fill = gradient.get_paint_server()))
+        g.add(dwg.text(story.name,
             insert = (-5, (idx + 0.8) * columnheight),
             text_anchor = 'end',
             font_family = 'Arial',
             font_size = 10,
             alignment_baseline = 'middle'))
         if words > longestlength:
-            dwg.add(dwg.text(str(round(words / 1000000, 1)) + "m ->",
-                insert = (width + 5, (idx) * columnheight),
+            g.add(dwg.text(str(round(words / 1000000, 1)) + "m ->",
+                insert = (width + 165, (idx) * columnheight),
+                text_anchor = 'end',
                 font_family = 'Arial',
                 font_size = 8,
                 fill_opacity = 0.5))
 
-    dwg.save()
+    return height
 
-def render_words_per_week():
+def render_words_per_week(dwg, g, width):
     data = db()
 
     weeks = 8
@@ -113,18 +133,20 @@ def render_words_per_week():
         storystats += [(v, v.words_per_week(weeks))]
     print("Completed, rendering")
 
-    render_standard_chart(
-        "words_per_week.svg",
+    return render_standard_chart(
+        dwg,
+        g,
+        width,
         storystats,
         f'Words published per week ({weeks}wk rolling average)',
         render_words_per_week_legend)
 
-def render_words_per_week_legend(dwg, width, height, biggeststat):
+def render_words_per_week_legend(dwg, g, width, height, biggeststat):
     #add nanowrimo legends
     for amount, label in [(50000 / 30 * 7, 'nanowrimo'), (50000 / 365 * 7, 'nanowriyr?')]:
         ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.15, stroke_dasharray="4 4"))
-        dwg.add(dwg.text(label,
+        g.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.15, stroke_dasharray="4 4"))
+        g.add(dwg.text(label,
             insert = (-10, ypos + 3),
             font_family = 'Arial',
             font_size = 10,
@@ -133,7 +155,7 @@ def render_words_per_week_legend(dwg, width, height, biggeststat):
             alignment_baseline = 'middle',
             fill_opacity = 0.7))
 
-    dwg.add(dwg.text('^ nanowriwk (50k/wk)',
+    g.add(dwg.text('^ nanowriwk (50k/wk)',
         insert = (-65, -20),
         font_family = 'Arial',
         font_size = 10,
@@ -146,8 +168,8 @@ def render_words_per_week_legend(dwg, width, height, biggeststat):
         if amount == 0:
             continue
         ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(label,
+        g.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        g.add(dwg.text(label,
             insert = (-10, ypos + 3),
             font_family = 'Arial',
             font_size = 8,
@@ -155,7 +177,7 @@ def render_words_per_week_legend(dwg, width, height, biggeststat):
             alignment_baseline = 'middle',
             fill_opacity = 0.5))
 
-def render_words_per_post():
+def render_words_per_post(dwg, g, width):
     data = db()
 
     weeks = 8
@@ -167,19 +189,21 @@ def render_words_per_post():
         storystats += [(v, v.words_per_post(weeks))]
     print("Completed, rendering")
 
-    render_standard_chart(
-        "words_per_post.svg",
+    return render_standard_chart(
+        dwg,
+        g,
+        width,
         storystats,
         f'Words published per post ({weeks}wk rolling average)',
         render_words_per_post_legend)
 
-def render_words_per_post_legend(dwg, width, height, biggeststat):
+def render_words_per_post_legend(dwg, g, width, height, biggeststat):
     for amount, label in [(n, str(n) + " words") for n in range(0, int(biggeststat) + 1, 1000)]:
         if amount == 0:
             continue
         ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(label,
+        g.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        g.add(dwg.text(label,
             insert = (-10, ypos + 3),
             font_family = 'Arial',
             font_size = 8,
@@ -187,7 +211,7 @@ def render_words_per_post_legend(dwg, width, height, biggeststat):
             alignment_baseline = 'middle',
             fill_opacity = 0.5))
 
-def render_posts_per_week():
+def render_posts_per_week(dwg, g, width):
     data = db()
 
     weeks = 4
@@ -199,19 +223,21 @@ def render_posts_per_week():
         storystats += [(v, v.posts_per_week(weeks))]
     print("Completed, rendering")
 
-    render_standard_chart(
-        "posts_per_week.svg",
+    return render_standard_chart(
+        dwg,
+        g,
+        width,
         storystats,
         f'Posts published per week ({weeks}wk rolling average)',
         render_posts_per_week_legend)
 
-def render_posts_per_week_legend(dwg, width, height, biggeststat):
+def render_posts_per_week_legend(dwg, g, width, height, biggeststat):
     for amount, label in [(n, str(n) + " posts") for n in range(0, int(biggeststat) + 1, 1)]:
         if amount == 0:
             continue
         ypos = util_math.remap(0, biggeststat, height, 0, amount)
-        dwg.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(label,
+        g.add(dwg.line((0, ypos), (width, ypos), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        g.add(dwg.text(label,
             insert = (-10, ypos + 3),
             font_family = 'Arial',
             font_size = 8,
@@ -219,14 +245,13 @@ def render_posts_per_week_legend(dwg, width, height, biggeststat):
             alignment_baseline = 'middle',
             fill_opacity = 0.5))
 
-def render_standard_chart(filename, storystats, title, legend):
+def render_standard_chart(dwg, g, width, storystats, title, legend):
 
     biggeststat = max(max(v[1] for v in data) for story, data in storystats) * 1.1  # little extra just so the graph isn't ending at the exact box edge
 
     xmin = min(data[0][0] for story, data in storystats)
     xmax = max(data[-1][0] for story, data in storystats)
 
-    width = 800
     height = 300
 
     textwidth = 150
@@ -236,18 +261,10 @@ def render_standard_chart(filename, storystats, title, legend):
     br = (width + textwidth + imageborder, height + imageborder)
     size = (br[0] - ul[0], br[1] - ul[1])
 
-    dwg = svgwrite.Drawing(filename=filename, debug=True)
+    g.add(dwg.polyline([(0, 0), (0, height), (width, height)], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
 
-    dwg.viewbox(
-        minx = ul[0],
-        miny = ul[1],
-        width = size[0],
-        height = size[1])
-    dwg.add(dwg.rect(ul, size, fill='ghostwhite'))
-    dwg.add(dwg.polyline([(0, 0), (0, height), (width, height)], fill = 'none', stroke = 'black', stroke_opacity = 0.5))
-
-    dwg.add(dwg.text(title,
-        insert = ((ul[0] + br[0]) / 2, -10),
+    g.add(dwg.text(title,
+        insert = (width / 2, -10),
         font_family = 'Arial',
         font_size = 14,
         text_anchor = 'middle',
@@ -255,12 +272,12 @@ def render_standard_chart(filename, storystats, title, legend):
         fill_opacity = 0.8 ))
 
     if legend is not None:
-        legend(dwg, width, height, biggeststat)
+        legend(dwg, g, width, height, biggeststat)
 
     for year in range(xmin.year + 1, xmax.year + 1):
         xpos = util_math.remap(xmin, xmax, 0, width, datetime.datetime(year, 1, 1))
-        dwg.add(dwg.line((xpos, 0), (xpos, height), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
-        dwg.add(dwg.text(str(year),
+        g.add(dwg.line((xpos, 0), (xpos, height), stroke='black', stroke_opacity=0.1, stroke_dasharray="2 4"))
+        g.add(dwg.text(str(year),
             insert = (xpos, height + 10),
             font_family = 'Arial',
             font_size = 8,
@@ -273,8 +290,8 @@ def render_standard_chart(filename, storystats, title, legend):
         line = []
         for date, amount in data:
             line += [(util_math.remap(xmin, xmax, 0, width, date), util_math.remap(0, biggeststat, height, 0, amount))]
-        #dwg.add(dwg.polyline(line, fill = 'none', stroke = 'ghostwhite', stroke_width = 3)) # for future line standout code
-        dwg.add(dwg.polyline(line, fill = 'none', stroke = story.color))
+        #g.add(dwg.polyline(line, fill = 'none', stroke = 'ghostwhite', stroke_width = 3)) # for future line standout code
+        g.add(dwg.polyline(line, fill = 'none', stroke = story.color))
 
     print("  Placing unfinished legends")
     endtexts = []
@@ -291,7 +308,7 @@ def render_standard_chart(filename, storystats, title, legend):
             top = max(entry[1] for entry in data[max(spanstart, 0):min(spanstart + wordlendays, len(data))])
 
             center = data[int(len(data) / 2)]
-            dwg.add(dwg.text(story.name,
+            g.add(dwg.text(story.name,
                 insert = (util_math.remap(xmin, xmax, 0, width, center[0]), util_math.remap(0, biggeststat, height, 0, top) - 10),
                 text_anchor = 'middle',
                 font_family = 'Arial',
@@ -299,7 +316,7 @@ def render_standard_chart(filename, storystats, title, legend):
                 alignment_baseline = 'baseline',
                 stroke = 'ghostwhite',
                 stroke_width = 3))
-            dwg.add(dwg.text(story.name,
+            g.add(dwg.text(story.name,
                 insert = (util_math.remap(xmin, xmax, 0, width, center[0]), util_math.remap(0, biggeststat, height, 0, top) - 10),
                 text_anchor = 'middle',
                 font_family = 'Arial',
@@ -346,7 +363,7 @@ def render_standard_chart(filename, storystats, title, legend):
         print(f"  Rearrangement complete with {cyclesremaining} remaining")
 
     for story, position in endtexts:
-        dwg.add(dwg.text(story.name,
+        g.add(dwg.text(story.name,
             insert = (width + 5, position),
             text_anchor = 'start',
             font_family = 'Arial',
@@ -354,7 +371,7 @@ def render_standard_chart(filename, storystats, title, legend):
             alignment_baseline = 'middle',
             fill = story.color))
 
-    dwg.save()
+    return height
 
 def calctextwidth(text, fontsize=14):
     import cairo
