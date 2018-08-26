@@ -260,13 +260,17 @@ def render_standard_chart(filename, storystats, title, legend):
             alignment_baseline = 'hanging',
             fill_opacity = 0.5 ))
 
-    print("Placing unfinished legends")
-    endtexts = []
+    print("  Placing lines")
     for story, data in storystats:
         line = []
         for date, amount in data:
             line += [(util_math.remap(xmin, xmax, 0, width, date), util_math.remap(0, biggeststat, height, 0, amount))]
+        #dwg.add(dwg.polyline(line, fill = 'none', stroke = 'ghostwhite', stroke_width = 3)) # for future line standout code
         dwg.add(dwg.polyline(line, fill = 'none', stroke = story.color))
+
+    print("  Placing unfinished legends")
+    endtexts = []
+    for story, data in storystats:
         if not story.finished:
             # add it to our list, we'll composite them together later
             endtexts += [(story, int(util_math.remap(0, biggeststat, height, 0, data[-1][1])))]
@@ -295,7 +299,7 @@ def render_standard_chart(filename, storystats, title, legend):
                 alignment_baseline = 'baseline',
                 fill = story.color))
 
-    print("Placing finished legends")
+    print("  Placing finished legends")
     cyclesremaining = 1000
     while cyclesremaining > 0:
         cyclesremaining = cyclesremaining - 1
@@ -331,7 +335,7 @@ def render_standard_chart(filename, storystats, title, legend):
                 endtexts[index] = (endtexts[index][0], endtexts[index][1] - 1)
 
     if cyclesremaining == 0:
-        print(f"Rearrangement complete with {cyclesremaining} remaining")
+        print(f"  Rearrangement complete with {cyclesremaining} remaining")
 
     for story, position in endtexts:
         dwg.add(dwg.text(story.name,
