@@ -145,3 +145,11 @@ hpmor:
   contentclass: .storycontent p
   nextlinkclass: .nav-next a
   nextlinktext: Next »
+
+ambience:
+  name: "Ambience: A Fleet Symphony"
+  url: https://www.fanfiction.net/s/10333897
+  color: 603a34
+  contentclass: .storytext p
+  nextlinkclass: button
+  nextlinktext: Next >
