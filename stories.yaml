@@ -136,3 +136,12 @@ zombieknight:
     - https://thezombieknight.blogspot.com/2017/12/extra-pages-and-whatnot.html
     - https://thezombieknight.blogspot.com/2018/01/couple-announcements.html
     - https://thezombieknight.blogspot.com/2018/07/normal-posting-will-resume-on-tuesday.html
+
+hpmor:
+  name: "HP: Methods of Rationality"
+  url: http://www.hpmor.com/chapter/1
+  color: 564d37
+  finished: True
+  contentclass: .storycontent p
+  nextlinkclass: .nav-next a
+  nextlinktext: Next »
