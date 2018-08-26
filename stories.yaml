@@ -140,7 +140,7 @@ zombieknight:
 hpmor:
   name: "HP: Methods of Rationality"
   url: http://www.hpmor.com/chapter/1
-  color: 564d37
+  color: 524d40
   finished: True
   contentclass: .storycontent p
   nextlinkclass: .nav-next a
