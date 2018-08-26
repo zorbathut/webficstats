@@ -139,6 +139,10 @@ def handle_page(url, story):
     return PageInfo(date, words, next), validated
 
 def handle_story(story):
+    # we can be passed a string, so let's just convert that to a story
+    if isinstance(story, str):
+        story = disk.db()[story]
+
     # get rid of the last page, just in case it's changed (we expect this)
     if len(story.data.pages) > 0:
         with disk.cache_lock():

@@ -8,9 +8,11 @@ parser.add_argument('--nothread', dest='nothread', action='store_true',
 parser.add_argument('--noscrape', dest='noscrape', action='store_true',
                     help='suppress scraping')
 
-args = parser.parse_args()
+args, unknownargs = parser.parse_known_args()
 
-if not args.noscrape:
+if len(unknownargs) > 0:
+    story.handle_story(unknownargs[0])
+elif not args.noscrape:
     story.handle_stories(not args.nothread)
 
 render.render()
