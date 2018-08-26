@@ -100,7 +100,7 @@ def render_words_per_week():
 
     print(f"Generating words per week . . .")
     storystats = []
-    for k, v in data.items():
+    for k, v in [(k, v) for k, v in data.items() if v.dateclass is not None]:
         print("  " + v.name)
         storystats += [(v, v.words_per_week(weeks))]
     print("Completed, rendering")
@@ -154,7 +154,7 @@ def render_words_per_post():
 
     print(f"Generating words per post . . .")
     storystats = []
-    for k, v in data.items():
+    for k, v in [(k, v) for k, v in data.items() if v.dateclass is not None]:
         print("  " + v.name)
         storystats += [(v, v.words_per_post(weeks))]
     print("Completed, rendering")
@@ -186,7 +186,7 @@ def render_posts_per_week():
 
     print(f"Generating posts per week . . .")
     storystats = []
-    for k, v in data.items():
+    for k, v in [(k, v) for k, v in data.items() if v.dateclass is not None]:
         print("  " + v.name)
         storystats += [(v, v.posts_per_week(weeks))]
     print("Completed, rendering")

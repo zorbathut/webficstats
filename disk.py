@@ -21,7 +21,7 @@ def load_from_yaml():
             value['url'].text,
             value['color'].text,
             value['contentclass'].text,
-            value['dateclass'].text,
+            value['dateclass'].text if 'dateclass' in value else None,
             value['validationclass'].text if 'validationclass' in value else None,
             value['validationtext'].text if 'validationtext' in value else None,
             value['validationinvert'].text if 'validationinvert' in value else False,

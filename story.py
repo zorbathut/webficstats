@@ -104,7 +104,11 @@ def handle_page(url, story):
         raise RuntimeError(f'Page {url} failed to download: {err}')
     html = BeautifulSoup(page, 'html.parser')
 
-    date = dateutil.parser.parse(html.select_one(story.dateclass).get_text())
+    if story.dateclass is not None:
+        date = dateutil.parser.parse(html.select_one(story.dateclass).get_text())
+    else:
+        date = None
+    
     words = words_of_entries(story.contentblock_crop(html.select(story.contentclass)))
 
     if words <= 0 and url not in story.zerolength:
