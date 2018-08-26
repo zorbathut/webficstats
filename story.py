@@ -108,16 +108,25 @@ def handle_page(url, story):
         date = dateutil.parser.parse(html.select_one(story.dateclass).get_text())
     else:
         date = None
-    
+
     words = words_of_entries(story.contentblock_crop(html.select(story.contentclass)))
 
     if words <= 0 and url not in story.zerolength:
         raise RuntimeError(f'Zero words detected in chapter {url}; that is never right')
 
     for link in html.select(story.nextlinkclass):
-        if re.match(story.nextlinktext, link.text.strip()) and urlparse(link['href']).netloc in story.domains:
-            next = urljoin(url, link['href'])
-            break
+        if re.match(story.nextlinktext, link.text.strip()):
+            if link.has_attr('href'):
+                next = urlparse(link['href']).netloc
+            elif link.has_attr('onclick'):
+                # fanfiction.net buttons
+                next = re.match("self.location='(.*)'", link['onclick']).group(1)
+            else:
+                continue
+
+            if urlparse(next).netloc in story.domains:
+                next = urljoin(url, next)
+                break
     else:
         next = None
 
