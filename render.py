@@ -34,6 +34,15 @@ def render_wrapper(filename, funcs):
     br = (width + textwidth + imageborder, cy + imageborder + 10)
     size = (br[0] - ul[0], br[1] - ul[1])
 
+    fg.add(dwg.text('github.com/zorbathut/webficstats',
+        insert = (br[0] - 2, br[1] - 2),
+        font_family = 'Arial',
+        font_size = 10,
+        font_style = 'italic',
+        text_anchor = 'end',
+        alignment_baseline = 'hanging',
+        fill_opacity = 0.3 ))
+
     bg.add(dwg.rect(ul, size, fill='ghostwhite'))
 
     dwg.viewbox(
