@@ -2,4 +2,5 @@ venv
 cache.yaml
 __pycache__
 *.svg
+*.png
 nohup.out

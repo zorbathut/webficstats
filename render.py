@@ -4,21 +4,22 @@ from disk import *
 import svgwrite
 import util_math
 import datetime
+import os
 
 def render():
-    render_wrapper('out_lengths.svg', [render_lengths])
-    render_wrapper('out_wpw.svg', [render_words_per_week])
-    render_wrapper('out_wpp.svg', [render_words_per_post])
-    render_wrapper('out_ppw.svg', [render_posts_per_week])
+    render_wrapper('out_lengths', [render_lengths])
+    render_wrapper('out_wpw', [render_words_per_week])
+    render_wrapper('out_wpp', [render_words_per_post])
+    render_wrapper('out_ppw', [render_posts_per_week])
 
 def render_unified():
-    render_wrapper('output.svg', [render_lengths, render_words_per_week, render_words_per_post, render_posts_per_week])
+    render_wrapper('output', [render_lengths, render_words_per_week, render_words_per_post, render_posts_per_week])
 
 def render_wrapper(filename, funcs):
     width = 800
     cy = 0
 
-    dwg = svgwrite.Drawing(filename=filename, debug=True)
+    dwg = svgwrite.Drawing(filename=filename + '.svg', debug=True)
 
     bg = dwg.add(dwg.g())
     fg = dwg.add(dwg.g())
@@ -57,6 +58,8 @@ def render_wrapper(filename, funcs):
     fg['style'] = f"clip-path: url(#{clip_path.get_iri()});"
 
     dwg.save()
+
+    os.system(f'inkscape {filename}.svg --export-png {filename}.png --export-dpi 180')
 
 def subgroup(dwg, fg, origin):
     return fg.add(dwg.g(transform = f"translate({origin[0]},{origin[1]})"))
