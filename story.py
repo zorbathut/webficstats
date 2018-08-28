@@ -118,7 +118,7 @@ def handle_page(url, story):
     for link in html.select(story.nextlinkclass):
         if re.match(story.nextlinktext, link.text.strip()):
             if link.has_attr('href'):
-                next = urlparse(link['href']).netloc
+                next = link['href']
             elif link.has_attr('onclick'):
                 # fanfiction.net buttons
                 next = re.match("self.location='(.*)'", link['onclick']).group(1)
