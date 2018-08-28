@@ -6,19 +6,26 @@ import util_math
 import datetime
 
 def render():
+    render_wrapper('out_lengths.svg', [render_lengths])
+    render_wrapper('out_wpw.svg', [render_words_per_week])
+    render_wrapper('out_wpp.svg', [render_words_per_post])
+    render_wrapper('out_ppw.svg', [render_posts_per_week])
+
+def render_unified():
+    render_wrapper('output.svg', [render_lengths, render_words_per_week, render_words_per_post, render_posts_per_week])
+
+def render_wrapper(filename, funcs):
     width = 800
     cy = 0
 
-    dwg = svgwrite.Drawing(filename='output.svg', debug=True)
+    dwg = svgwrite.Drawing(filename=filename, debug=True)
 
     bg = dwg.add(dwg.g())
     fg = dwg.add(dwg.g())
 
-    # we want to pass in a child somehow
-    cy += render_lengths(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
-    cy += render_words_per_week(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
-    cy += render_words_per_post(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
-    cy += render_posts_per_week(dwg, subgroup(dwg, fg, (0, cy)), width) + 20
+    for func in funcs:
+        cy += func(dwg, subgroup(dwg, fg, (0, cy)), width) + 100
+    cy -= 100
 
     textwidth = 150
     imageborder = 20
@@ -34,7 +41,6 @@ def render():
         miny = ul[1],
         width = size[0],
         height = size[1])
-    dwg['width'] = size[1]
 
     clip_path = dwg.defs.add(dwg.clipPath())
     clip_path.add(dwg.rect(ul, size))
