@@ -7,7 +7,7 @@ pkg-resources==0.0.0
 pycairo==1.17.1
 pyparsing==2.2.0
 python-dateutil==2.7.3
-PyYAML==3.13
+PyYAML==5.4
 requests==2.19.1
 ruamel.yaml==0.15.44
 six==1.11.0
